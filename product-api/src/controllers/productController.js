@@ -101,6 +101,56 @@ const getProductByName = async (req, res) => {
   }
 };
 
+//get product by discount
+const getProductByDiscount = async (req, res) => {
+  try {
+    const { discount } = req.params;
+    const products = await Product.find({ discount: discount })
+      .select("_id name price discount")
+      .exec();
+    if (!products)
+      return res.status(404).json({ message: "Product not found" });
+    const productsWithPrices = products.map((product) => {
+      const finalPrice =
+        product.price - (product.price * product.discount) / 100;
+      return {
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        discount: product.discount,
+        finalPrice: finalPrice,
+      };
+    });
+    res.status(200).json(productsWithPrices);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching product", error: error.message });
+  }
+};
+
+//get product by category name 
+const getProductByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    const categoryObj = await Category.findOne({
+      name: { $regex: category, $options: "i" },
+    });
+    if (!categoryObj)
+      return res.status(404).json({ message: "Category not found" });
+    const products = await Product.find({ categoryId: categoryObj._id })
+      .populate("categoryId", "name")
+      .exec();
+    if (!products)
+      return res.status(404).json({ message: "Product not found" });
+    res.status(200).json(products);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching product", error: error.message });
+  }
+};
+
 module.exports = {
-  createProduct,getProducts,getProductByID,getProductByName
+  createProduct,getProducts,getProductByID,getProductByName,getProductByDiscount
 };
