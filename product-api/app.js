@@ -1,11 +1,13 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const connectDB = require("./src/config/db");
 const productRoutes = require("./src/routes/productRoutes");
 const categoryRoutes = require("./src/routes/categoryRoutes");
 
-const app = express();
-
 dotenv.config();
+connectDB();
+
+const app = express();
 app.use(express.json());
 
 app.use("/api/products", productRoutes);
