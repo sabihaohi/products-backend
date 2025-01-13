@@ -151,6 +151,28 @@ const getProductByCategory = async (req, res) => {
   }
 };
 
+//update product
+
+const updateProduct = async (req, res) => {
+  const { id } = req.params;
+  const { status, description, discount } = req.body;
+  try {
+    const product = await Product.findById(id);
+    console.log(product);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    if (status) product.status = status;
+    if (description) product.description = description;
+    if (discount !== undefined) product.discount = discount;
+
+    await product.save();
+    res.status(200).json({ message: "Product updated successfully", product });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating product", error: error.message });
+  }
+};
 module.exports = {
-  createProduct,getProducts,getProductByID,getProductByName,getProductByDiscount
+  createProduct,getProducts,getProductByID,getProductByName,getProductByDiscount,getProductByCategory,updateProduct
 };
